@@ -13,15 +13,42 @@
 
 <script>
     const form = document.querySelector('form');
+    const emailError = document.querySelector('.email.error');
+    const passwordError = document.querySelector('.password.error');
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // reset errors
+        emailError.textContent = '';
+        passwordError.textContent = '';
 
         //get the values
         const email = form.email.value;
         const password = form.password.value;
 
-        console.log(email, password);
+        try {
+            const res = await fetch('/signup', {
+                method: 'POST',                                                                                //Same Name
+                body: JSON.stringify({ email: email, password: password }), //Parsing to JSON | Can also use { email, password }
+                headers: { 'Content-Type': 'application/json' } // post request content type; in this case : JSON
+            });
+
+            const data = await res.json(); //Parsing JSON to a JavaScript Object
+            console.log({ data });
+
+            if (data.error) {
+                emailError.textContent = data.error.email;
+                passwordError.textContent = data.error.password;
+            }
+
+            if (data.userID) {
+                location.assign('/')
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
     });
 </script>
 
