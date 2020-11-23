@@ -6,13 +6,23 @@ const handleErrors = (err) => {
     console.log(err.message, err.code);
     let errors = { email: '', password: '' }
 
-    // duplicate error code
+    // incorrect email - login validation
+    if (err.message === 'Incorrect Email') {
+        errors.email = 'That email is not registered';
+    }
+
+    // incorrect password - login validation
+    if (err.message === 'Incorrect Password') {
+        errors.password = 'That password is incorrect';
+    }
+
+    // duplicate error code - signup validation
     if (err.code === 11000) { // Duplicate error code
         errors.email = 'That email is already registered';
         return errors; // Return if this condition is met
     }
 
-    // validation errors
+    // validation errors - signup validation
     if (err.message.includes('user validation failed')) {
         Object.values(err.errors).forEach(({ properties }) => { // Destructuring 'properties' object from parent object
             errors[properties.path] = properties.message; // Updating the error object
@@ -57,6 +67,18 @@ module.exports.signup_post = async (req, res) => {
 }
 
 module.exports.login_post = async (req, res) => {
-    console.log(req.body);
-    res.send('new login');
+    const { email, password } = req.body;
+
+    try {
+        const user = await User.login(email, password); // Custom method using statics
+        const token = createToken(user._id);
+        res.cookie('jwt', token, { httpOnly: true, maxAge: 1000 * maxAge })
+        const userID = user._id;
+        res.status(201).json({ userID });
+    }
+    catch (err) {
+        const error = handleErrors(err);
+        res.status(400).json({ error })
+    }
+   
 }

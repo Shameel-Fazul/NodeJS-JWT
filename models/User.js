@@ -35,6 +35,21 @@ userSchema.pre('save', function (next) {
     // ^ 'this' syntax can't be accessed in a arrow function ^
 });
 
+// static method to login user - Creating static methods - EX : User.login()
+userSchema.statics.login = async function(email, password) {                                     // EX: User.findOne({ })
+    const user = await this.findOne({ email: email }); // In this case; 'this' is not an instance, we're defining User
+    if (user) {
+        const auth = bcrypt.compareSync(password, user.password); // Bcrypt will hash the 'password' and compare with 'user.password', and return true or false. 
+        
+        if (auth) {
+            return user;
+        }
+        throw Error('Incorrect Password');
+    }
+    throw Error('Incorrect Email');
+}
+
+
 
 const User = mongoose.model('user', userSchema);
 

@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const CookieParser = require('cookie-parser');
+const { requireAuth } = require('./middleware/authMiddleware');
 
 const app = express();
 
@@ -14,7 +15,7 @@ app.use(CookieParser()); // For parsing cookie data from the browser.
 app.set('view engine', 'ejs');
 
 // database connection
-const dbURI = '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$';
+const dbURI = '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4';
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
   .then((result) => {
     console.log('APP > Connected to MongoDB');
@@ -24,7 +25,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCr
 
 // routes
 app.get('/', (req, res) => res.render('home'));
-app.get('/smoothies', (req, res) => res.render('smoothies'));
+app.get('/smoothies', requireAuth, (req, res) => res.render('smoothies'));
 app.use(authRoutes);
 
 //cookies
