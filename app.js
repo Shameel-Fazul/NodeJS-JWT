@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const CookieParser = require('cookie-parser');
-const { requireAuth } = require('./middleware/authMiddleware');
+const { requireAuth, checkUser } = require('./middleware/authMiddleware');
 
 const app = express();
 
@@ -15,7 +15,7 @@ app.use(CookieParser()); // For parsing cookie data from the browser.
 app.set('view engine', 'ejs');
 
 // database connection
-const dbURI = '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4';
+const dbURI = '';
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
   .then((result) => {
     console.log('APP > Connected to MongoDB');
@@ -24,6 +24,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCr
   .catch((err) => console.log(err));
 
 // routes
+app.get('*', checkUser); // apply Middleware to every GET request
 app.get('/', (req, res) => res.render('home'));
 app.get('/smoothies', requireAuth, (req, res) => res.render('smoothies'));
 app.use(authRoutes);
